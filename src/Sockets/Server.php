@@ -37,12 +37,12 @@ class Server extends BaseClientServer
                     $socket = socket_accept($this->socket);
 
                     echo '[' . $pid_fork . '] Acceptor connect: ' . $socket . PHP_EOL;
-                    socket_write($socket, 'Process pid: ' . $pid . PHP_EOL);
+                    socket_write($socket, 'Process pid: ' . $pid . PHP_EOL );
 
-                    $command = trim(socket_read($socket, 2048));
+                    $command = trim(socket_read($socket, self::MESSAGE_LIMIT));
                     echo 'Retrieve command: ' . $command . PHP_EOL;
 
-                    socket_write($socket, '[' . $command . ']' . PHP_EOL);
+                    socket_write($socket, '[' . $command . ']' . PHP_EOL );
 
                     socket_close($socket);
                 }
@@ -75,11 +75,11 @@ class Server extends BaseClientServer
         );
 
         if (!socket_bind($this->socket, $this->getAddress(), $this->getPort())) {
-            die('Socket bind failed: ' . socket_strerror(socket_last_error()) . PHP_EOL);
+            throw new Exceptions\Socket('Socket bind failed');
         }
 
         if (!socket_listen($this->socket, 1)) {
-            die('Socket listen failed: ' . socket_strerror(socket_last_error()) . PHP_EOL);
+            throw new Exceptions\Socket('Socket listen failed');
         }
     }
 }

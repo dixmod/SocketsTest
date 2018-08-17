@@ -8,13 +8,15 @@ abstract class BaseClientServer implements InterfaceClientServer
     protected $address = '127.0.0.1';
 
     /** @var int */
-    protected $port = 1235;
+    protected $port = 1234;
 
-    /** @var array  */
+    /** @var array */
     protected $runRequiredParams = [
         'address::',
         'port::'
     ];
+
+    protected const MESSAGE_LIMIT = 2048;
 
     /** @var resource */
     protected $socket;
@@ -25,11 +27,11 @@ abstract class BaseClientServer implements InterfaceClientServer
     {
         $this->runParams = getopt('', $this->getRunRequiredParams());
 
-        if(!empty($this->runParams['address'])) {
+        if (!empty($this->runParams['address'])) {
             $this->setAddress($this->runParams['address']);
         }
 
-        if(!empty($this->runParams['port'])) {
+        if (!empty($this->runParams['port'])) {
             $this->setPort($this->runParams['port']);
         }
     }
@@ -38,7 +40,7 @@ abstract class BaseClientServer implements InterfaceClientServer
     {
         $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         if ($this->socket === false) {
-            die('Socket created failed: ' . socket_strerror(socket_last_error()) . PHP_EOL);
+            throw new Exceptions\Socket('Socket created failed');
         }
     }
 

@@ -2,6 +2,8 @@
 
 namespace Dixmod\Sockets;
 
+use Dixmod\Sockets\Exceptions;
+
 class Client extends BaseClientServer
 {
     /** @var array */
@@ -11,7 +13,7 @@ class Client extends BaseClientServer
         'message:'
     ];
 
-    protected $message = 'GET /';
+    protected $message = '';
 
     public function __construct()
     {
@@ -22,11 +24,11 @@ class Client extends BaseClientServer
         }
 
         $this->connect();
-        print_r($this->message); exit;
     }
 
     public function run(): void
     {
+
         socket_write(
             $this->socket,
             $this->message,
@@ -34,11 +36,14 @@ class Client extends BaseClientServer
         );
 
         $answer = '';
-        while (($line = socket_read($this->socket, 2048)) !== '') {
+        while (($line = socket_read($this->socket, self::MESSAGE_LIMIT)) !== '') {
             $answer .= $line;
         }
 
         echo $answer . PHP_EOL;
+
+        $this->setMessage(substr($answer, 0, strlen($answer) - 1));
+
     }
 
     /**
@@ -63,7 +68,7 @@ class Client extends BaseClientServer
 
         $connect = socket_connect($this->socket, $this->getAddress(), $this->getPort());
         if ($connect === false) {
-            die('Socket connect failed: ' . socket_strerror(socket_last_error()) . PHP_EOL);
+             throw new Exceptions\Socket('Socket connect failed');
         }
     }
 }
